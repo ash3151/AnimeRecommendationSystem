@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Score Predictor</title>
+    <script>
+        async function predictScore(event) {
+            event.preventDefault();
+            const animeId = document.getElementById('anime_id').value;
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+
+            // Clear previous results
+            resultDiv.textContent = '';
+            errorDiv.textContent = '';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ anime_id: animeId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.textContent = `Score for ${data.title}: ${data.prediction}`;
+                } else {
+                    errorDiv.textContent = `Error: ${data.error}`;
+                }
+            } catch (error) {
+                errorDiv.textContent = 'An error occurred. Please try again.';
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container" 
+         style="background-color: #03d1ff; font-family: 'Poppins', Arial, sans-serif; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+                padding: 40px; display: flex; flex-direction: column; align-items: center; 
+                text-align: center;">
+        <h1 style="color: #333; margin-bottom: 20px;">Anime Score Predictor</h1>
+
+        <p class="description" style="color: #666; margin-bottom: 30px;">
+            This app allows you to predict the score of an anime based on its ID from MyAnimeList. 
+            Simply enter the Anime ID below, and the app will provide a predicted score.
+        </p>
+
+        <div class="form-section" style="display: flex; flex-direction: column; align-items: center;">
+            <form onsubmit="predictScore(event)">
+                <label for="anime_id" style="color: #555; margin-bottom: 10px;">Enter Anime ID:</label>
+                <input type="text" id="anime_id" name="anime_id" placeholder="e.g., 12345" required 
+                       style="width: 300px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 20px;">
+                <button type="submit" 
+                        style="background-color: #4CAF50; color: white; padding: 15px 30px; border: none; 
+                               border-radius: 5px; cursor: pointer; transition: background-color 0.3s ease;">
+                    Predict
+                </button>
+            </form>
+            <div id="result" class="success-message" style="color:rgb(0, 0, 0); margin-top: 20px;"></div>
+            <div id="error" class="error-message" style="color: #f44336; margin-top: 20px;"></div>
+        </div>
+
+        <p class="additional-info" style="color: #777; margin-top: 30px;">How this App works:</p>
+        <p class="additional-info" style="color: #777; margin-top: 30px;">Enter your Anime's MAL Id,
+        Using the above Id the necessary anime information is collected through Jikan Api and is stored as JSON,
+        Features such as Type, Episodes, Rating, Rank, Popularity, etc. are extracted through collected data,
+        These Features are converted to Pandas dataframe,
+        Categorical Features such as Producers, Genres, Themes, etc. are one hot encoded,
+        These inputs are transformed and fed to trained Linear Regression model to get score,
+        Information about Data collection and Model Training would be available on my github</p>
+        <p class="additional-info" style="color: #777; margin-top: 30px;">Accuracy of this model can be improved drastically by increasing training data, I used Cameron Menzies MAL list which he posted on Kaggle since my MAL profile didn't have sufficient reviews</p>
+                  
+    </div>
+</body>
+</html>
